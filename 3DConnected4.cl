@@ -11,8 +11,21 @@
 (setf tabla (pravi3Dmatricu n))
 
 
-
 (setf x (read))
 (setf y (read))
 
-(defun postavi)
+(defun dodaj(el lista)
+    (if (member #\- lista) 
+        (cond
+            ((null lista) nil)
+            ((equalp (car lista) #\-) (cons el (cdr lista)))
+            (t (append (list (car lista)) (dodaj el (cdr lista))))
+        )
+        nil
+    )
+)
+
+(dodaj #\X '(#\- #\- #\- #\-))
+
+(nth y (nth x tabla))
+tabla
