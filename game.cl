@@ -5,6 +5,8 @@
 (setf movesToGo nil)
 (setf nowPlaying #\X)
 
+(setf pom nil)
+
 ;FUNKCIJE ZA KREIRANJE TABLE (pravi3Dmatricu dim)
 (defun pravilistu (n) 
     (cond 
@@ -165,13 +167,10 @@
 
 ;FUNKCIJE ZA IGRANJE POTEZA
 (defun dodaj(el lista)
-    (if (member #\- lista) 
-        (cond
-            ((null lista) nil)
-            ((equalp (car lista) #\-) (cons el (cdr lista)))
-            (t (append (list (car lista)) (dodaj el (cdr lista))))
-        )
-        nil
+    (cond
+        ((null lista) nil)
+        ((equalp (car lista) #\-) (cons el (cdr lista)))
+        (t (append (list (car lista)) (dodaj el (cdr lista))))
     )
 )
 
@@ -179,13 +178,35 @@
 ;INICIJALIZACIJA IGRE
 (defun gameInit ()
     (print "Unesite dimenzije table")
-    (print "a) 4")
-    (print "b) 6")
+    (format t "~%a) 4~%b) 6~%")
     (setf input (read ))
     (cond 
         ((equal input 'a) (setf dim 4))
         ((equal input 'b) (setf dim 6))
         (t (progn (print "Greska pri unosu dimenzija") (gameInit)))
     )
+    ;linija ispod se brise kad se sredi crtanje
+    (setf pom dim)
+    (print "Igrac-Igrac ili Igrac-BOT?")
+    (format t "~%a) Igrac-Igrac~%b) Igrac-BOT~%")
+    (setf input (read ))
+    (cond 
+        ((equal input 'a) (setf isTwoPlayers t))
+        ((equal input 'b) (setf isTwoPlayers nil))
+        (t (progn (print "Greska pri unosu broja igraca") (gameInit)))
+    )
+    (print "Zelite li da igrate prvi?")
+    (format t "~%a) Da~%b) Ne~%")
+    (setf input (read ))
+    (cond 
+        ((equal input 'a) (setf isFirstPlayer t))
+        ((equal input 'b) (setf isFirstPlayer nil))
+        (t (progn (print "Greska pri unosu") (gameInit)))
+    )
+    (setf tabla (pravi3Dmatricu dim))
+    (drawTable tabla dim)
 
+    ;TREBA DA SE NASTAVI OVA FUNKCIJA
 )
+
+(gameInit)
