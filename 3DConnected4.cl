@@ -15,15 +15,16 @@ tabla
 (setf x (read))
 (setf y (read))
 
+(if (>= x n) nil '(1))
+(if (>= y n) nil '(1))
+
 (defun dodaj(el lista)
-    (if (member #\- lista) 
+     
         (cond
             ((null lista) nil)
             ((equalp (car lista) #\-) (cons el (cdr lista)))
             (t (append (list (car lista)) (dodaj el (cdr lista))))
         )
-        nil
-    )
 )
 
 
@@ -34,4 +35,4 @@ tabla
 (defun postavikolona (y lista el) (cond ((= y 0) (cons (dodaj el (car lista)) (cdr lista))) (t(cons (car lista) (postavikolona (1- y) (cdr lista) el)))
                                       ))
 
-(setf tabla (postavired x y tabla #\X))
+(if (member #\- (nth y (nth x tabla))) (setf tabla (postavired x y tabla #\X)))
