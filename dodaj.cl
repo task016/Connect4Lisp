@@ -5,3 +5,5 @@
         (t (append (list (car lista)) (dodaj el (cdr lista))))
     )
 )
+
+(dodaj #\X '(#\- #\- #\- #\-))
