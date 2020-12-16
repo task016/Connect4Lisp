@@ -174,6 +174,15 @@
     )
 )
 
+(defun postavikolona (y lista el) (cond ((= y 0) (cons (dodaj el (car lista)) (cdr lista))) (t(cons (car lista) (postavikolona (1- y) (cdr lista) el)))))
+
+(defun odigrajpotez (x y tabla el) (cond ((= x 0) (cons (postavikolona y (car tabla) el) (cdr tabla))) (t(cons (car tabla) (odigrajpotez (1- x) y (cdr tabla) el)))))
+
+(defun odigraj (x y el)
+  (if (member #\- (nth y (nth x tabla)))
+      (setf tabla (odigrajpotez x y tabla el))
+    )
+)
 
 ;INICIJALIZACIJA IGRE
 (defun gameInit ()
