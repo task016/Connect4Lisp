@@ -35,4 +35,10 @@ tabla
 (defun postavikolona (y lista el) (cond ((= y 0) (cons (dodaj el (car lista)) (cdr lista))) (t(cons (car lista) (postavikolona (1- y) (cdr lista) el)))
                                       ))
 
-(if (member #\- (nth y (nth x tabla))) (setf tabla (odigrajpotez x y tabla #\X)))
+
+(defun odigraj (x y el)
+  (if (member #\- (nth y (nth x tabla)))
+      (setf tabla (odigrajpotez x y tabla el))
+    ))
+
+(odigraj x y #\X)
