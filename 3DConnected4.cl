@@ -1,19 +1,19 @@
 (setf n (read))
-(setf pom n)
 
-(defun pravilistu (n) (cond ((= n 1) (list #\-)) (t(cons #\- (pravilistu(1- n))))))
+(defun pravilistu (x) (cond ((= x 1) (list #\-)) (t(cons #\- (pravilistu(1- x))))))
 
-(defun pravimatricu (n) (cond ((= n 1) (list (pravilistu pom))) (t(cons (pravilistu pom) (pravimatricu(1- n))))
-                              ))
+(defun pravimatricu (x) (let ((pom n)) (cond ((= x 1) (list (pravilistu pom))) (t(cons (pravilistu pom) (pravimatricu(1- x))))
+                              )))
 
-(defun pravi3Dmatricu (n) (cond ((= n 1) (list (pravimatricu pom))) (t(cons (pravimatricu pom) (pravi3Dmatricu(1- n))))  
-                           ))
+(defun pravi3Dmatricu (x) (let ((pom n)) (cond ((= x 1) (list (pravimatricu pom))) (t(cons (pravimatricu pom) (pravi3Dmatricu(1- x))))  
+                           )))
 (setf tabla (pravi3Dmatricu n))
 
 tabla
 
-(setf x (read))
-(setf y (read))
+(setf x (1- (read)))
+(setf y (1- (read)))
+
 
 (if (>= x n) nil '(1))
 (if (>= y n) nil '(1))
@@ -28,17 +28,17 @@ tabla
 )
 
 
-(defun odigrajpotez (x y tabla el) (cond ((= x 0) (cons (postavikolona y (car tabla) el) (cdr tabla))) (t(cons (car tabla) (odigrajpotez (1- x) y (cdr tabla) el)) 
+(defun odigrajpotez (x y tabla el) (cond ((= y 0) (cons (postavikolona x (car tabla) el) (cdr tabla))) (t(cons (car tabla) (odigrajpotez x (1- y) (cdr tabla) el)) 
                                                                                                   )))
 
   
-(defun postavikolona (y lista el) (cond ((= y 0) (cons (dodaj el (car lista)) (cdr lista))) (t(cons (car lista) (postavikolona (1- y) (cdr lista) el)))
+(defun postavikolona (x lista el) (cond ((= x 0) (cons (dodaj el (car lista)) (cdr lista))) (t(cons (car lista) (postavikolona (1- x) (cdr lista) el)))
                                       ))
 
 
-(defun odigraj (x y el)
-  (if (member #\- (nth y (nth x tabla)))
-      (setf tabla (odigrajpotez x y tabla el))
+(defun odigraj (pomtabla x y el)
+  (if (member #\- (nth x (nth y pomtabla)))
+      (setf tabla (odigrajpotez x y pomtabla el))
     ))
 
-(odigraj x y #\X)
+(odigraj tabla x y #\X)
