@@ -5,29 +5,12 @@
 (setf movesToGo nil)
 (setf nowPlaying #\X)
 
-(setf pom nil)
-
 ;FUNKCIJE ZA KREIRANJE TABLE (pravi3Dmatricu dim)
-(defun pravilistu (n) 
-    (cond 
-        ((= n 1) (list #\-)) 
-        (t (cons #\- (pravilistu(1- n))))
-    )
-)
+(defun pravilistu (x) (cond ((= x 1) (list #\-)) (t(cons #\- (pravilistu(1- x))))))
 
-(defun pravimatricu (n) 
-    (cond 
-        ((= n 1) (list (pravilistu pom))) 
-        (t(cons (pravilistu pom) (pravimatricu(1- n))))
-    )
-)
+(defun pravimatricu (x) (let ((pom dim)) (cond ((= x 1) (list (pravilistu pom))) (t(cons (pravilistu pom) (pravimatricu(1- x)))))))
 
-(defun pravi3Dmatricu (n) 
-    (cond 
-        ((= n 1) (list (pravimatricu pom))) 
-        (t(cons (pravimatricu pom) (pravi3Dmatricu(1- n))))
-    )
-)
+(defun pravi3Dmatricu (x) (let ((pom dim)) (cond ((= x 1) (list (pravimatricu pom))) (t(cons (pravimatricu pom) (pravi3Dmatricu(1- x)))))))
 
 ;FUNKCIJE ZA STAMPANJE TABLE (drawTable tabla dim)
 (defun drawFirstLine(n) 
@@ -188,17 +171,35 @@
    (cond
     ((= 0 movesToGo) (checkForWinner tabla)) 
     (t 
-        (format t "~%Unesite potez u formatu red kolona~%")
-        (if (not (odigraj (read ) (read ) nowPlaying)) (progn (format t "~%Los potez, igrate ponovo~%") (humanPlay)))
+        (format t "~%Prvi igrac na potezu~%Unesite potez u formatu red kolona~%")
+        (if (not (odigraj (read ) (read ) #\X)) (progn (format t "~%Los potez, igrate ponovo~%") (humanPlay)))
         (setf movesToGo (1- movesToGo))
         (drawTable tabla dim)
-        (humanPlay) 
+        (botPlay) 
     )
     )
 )
 
+(defun botPlay()
+  (cond
+    ((= 0 movesToGo) (checkForWinner tabla))
+    (t
+        (cond
+            ((equal t isTwoPlayers)
+                (format t "~%Drugi igrac na potezu~%Unesite potez u formatu red kolona~%")
+                (if (not (odigraj (read ) (read ) #\O)) (progn (format t "~%Los potez, igrate ponovo~%") (botPlay)))
+                (setf movesToGo (1- movesToGo))
+                (drawTable tabla dim)
+                (humanPlay)  
+            )  
+        )
+    )
+)
+)
+
 (defun checkForWinner(tabla)
   (format t "~%Checking for winner...")
+  (exit)
 )
 
 ;INICIJALIZACIJA IGRE
