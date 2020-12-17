@@ -157,23 +157,25 @@
     )
 )
 
-(defun postavikolona (y lista el) (cond ((= y 0) (cons (dodaj el (car lista)) (cdr lista))) (t(cons (car lista) (postavikolona (1- y) (cdr lista) el)))))
+(defun odigrajpotez (x y tabla el) (cond ((= y 0) (cons (postavikolona x (car tabla) el) (cdr tabla))) (t(cons (car tabla) (odigrajpotez x (1- y) (cdr tabla) el)))))
 
-(defun odigrajpotez (x y tabla el) (cond ((= x 0) (cons (postavikolona y (car tabla) el) (cdr tabla))) (t(cons (car tabla) (odigrajpotez (1- x) y (cdr tabla) el)))))
+  
+(defun postavikolona (x lista el) (cond ((= x 0) (cons (dodaj el (car lista)) (cdr lista))) (t(cons (car lista) (postavikolona (1- x) (cdr lista) el)))))
 
-(defun odigraj (x y el)
-  (if (member #\- (nth y (nth x tabla)))
-      (setf tabla (odigrajpotez x y tabla el))
-    )
-)
+
+(defun odigraj (pomtabla x y el)
+  (if (member #\- (nth x (nth y pomtabla)))
+      (setf tabla (odigrajpotez x y pomtabla el))
+))
 
 (defun humanPlay()
    (cond
     ((= 0 movesToGo) (checkForWinner tabla)) 
     (t 
         (format t "~%Prvi igrac na potezu~%Unesite potez u formatu red kolona~%")
-        (if (not (odigraj (read ) (read ) #\X)) (progn (format t "~%Los potez, igrate ponovo~%") (humanPlay)))
+        (if (not (odigraj tabla (1- (read )) (1- (read )) nowPlaying)) (progn (format t "~%Los potez, igrate ponovo~%") (humanPlay)))
         (setf movesToGo (1- movesToGo))
+        (if (equal nowPlaying #\X) (setf nowPlaying #\O) (setf nowPlaying #\X))
         (drawTable tabla dim)
         (botPlay) 
     )
@@ -187,11 +189,17 @@
         (cond
             ((equal t isTwoPlayers)
                 (format t "~%Drugi igrac na potezu~%Unesite potez u formatu red kolona~%")
-                (if (not (odigraj (read ) (read ) #\O)) (progn (format t "~%Los potez, igrate ponovo~%") (botPlay)))
+                (if (not (odigraj tabla (1- (read )) (1- (read )) nowPlaying)) (progn (format t "~%Los potez, igrate ponovo~%") (botPlay)))
                 (setf movesToGo (1- movesToGo))
+                (if (equal nowPlaying #\X) (setf nowPlaying #\O) (setf nowPlaying #\X))
                 (drawTable tabla dim)
                 (humanPlay)  
-            )  
+            )
+            (t 
+                (format t "~%Sad bi trebalo da igra bot...~%")
+                (if (equal nowPlaying #\X) (setf nowPlaying #\O) (setf nowPlaying #\X))
+                (humanPlay)
+            )            
         )
     )
 )
@@ -204,6 +212,7 @@
 
 ;INICIJALIZACIJA IGRE
 (defun gameInit ()
+    (setf nowPlaying #\X)
     (print "Unesite dimenzije table")
     (format t "~%a) 4~%b) 6~%")
     (setf input (read ))
@@ -235,7 +244,7 @@
     (drawTable tabla dim)
   
     ;TREBA DA SE NASTAVI OVA FUNKCIJA
-    (humanPlay)
+    (if (equal t isFirstPlayer) (humanPlay) (botPlay))
 )
 
 (gameInit)
