@@ -184,6 +184,23 @@
     )
 )
 
+(defun humanPlay()
+   (cond
+    ((= 0 movesToGo) (checkForWinner tabla)) 
+    (t 
+        (format t "~%Unesite potez u formatu red kolona~%")
+        (if (not (odigraj (read ) (read ) nowPlaying)) (progn (format t "~%Los potez, igrate ponovo~%") (humanPlay)))
+        (setf movesToGo (1- movesToGo))
+        (drawTable tabla dim)
+        (humanPlay) 
+    )
+    )
+)
+
+(defun checkForWinner(tabla)
+  (format t "~%Checking for winner...")
+)
+
 ;INICIJALIZACIJA IGRE
 (defun gameInit ()
     (print "Unesite dimenzije table")
@@ -194,6 +211,7 @@
         ((equal input 'b) (setf dim 6))
         (t (progn (print "Greska pri unosu dimenzija") (gameInit)))
     )
+    (setf movesToGo (expt dim 3))
     ;linija ispod se brise kad se sredi crtanje
     (setf pom dim)
     (print "Igrac-Igrac ili Igrac-BOT?")
@@ -214,8 +232,9 @@
     )
     (setf tabla (pravi3Dmatricu dim))
     (drawTable tabla dim)
-
+  
     ;TREBA DA SE NASTAVI OVA FUNKCIJA
+    (humanPlay)
 )
 
 (gameInit)
