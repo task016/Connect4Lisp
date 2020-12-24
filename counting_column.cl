@@ -81,14 +81,66 @@
     )   
 )
 
-(kolonaBezD 0 0 '((#\X #\X #\X #\X) (#\X #\X #\X #\X) (#\O #\X #\X #\X) (#\O #\X #\X #\X) (#\O #\X #\X #\X) (#\O #\X #\X #\X)))
+(kolonaBezD 0 0 '((#\X #\X #\X #\X) (#\X #\X #\X #\X) (#\O #\X #\X #\X) (#\O #\X #\X #\X)))
+
+;vraca dijagonalu, sa pocetkom u (0,i), u zavisnosti od parametra glavna vraca glavnu ili sporednu
+(defun getDiag(i glavna lista)
+    (cond
+        ((null lista) NIL)
+        ((and glavna (= i (length (car lista)))) NIL)
+        ((and (not glavna) (< i 0)) NIL)
+        ((>= i (length (car lista))) (getDiag (1- i) glavna (cdr lista)))
+        ((< i 0) (getDiag (1+ i) glavna (cdr lista)))
+        (glavna (cons (nth i (car lista)) (getDiag (1+ i) glavna (cdr lista))))
+        (t (cons (nth i (car lista)) (getDiag (1- i) glavna (cdr lista))))        
+    )
+)
+
+(getDiag 5 NIL (transpose '((#\1 #\X #\A #\X) (#\X #\2 #\X #\B) (#\O #\X #\3 #\X) (#\O #\X #\X #\4))))
+
+;vraca poene dijagonala jedne kolone, uvek se poziva sa i=-2
+(defun kolonaD(px po i lista)
+    (cond 
+        ((= 4 (length (car lista))) 
+            (cond
+                ((= i -2) 
+                    (let ((poeni (countPoints (getDiag 0 t (transpose lista)))))
+                        (kolonaD (+ px (car poeni)) (+ po (cadr poeni)) 2 lista)
+                    ) 
+                )
+                ((= i 2)
+                    (let ((poeni (countPoints (getDiag 3 NIL (transpose lista)))))
+                        (list (+ px (car poeni)) (+ po (cadr poeni)))  
+                    ) 
+                )                
+            )
+        )
+        ((= 6 (length (car lista)))
+            (cond
+                ((= i 8) (list px po))
+                ((<= i 2)
+                    (let ((poeni (countPoints (getDiag i t (transpose lista)))))
+                        (kolonaD (+ px (car poeni)) (+ po (cadr poeni)) (1+ i) lista)  
+                    ) 
+                )
+                (t (let ((poeni (countPoints (getDiag i NIL (transpose lista)))))
+                        (kolonaD (+ px (car poeni)) (+ po (cadr poeni)) (1+ i) lista)  
+                    ) 
+                )                
+            )
+        )
+    )
+)
+
+(kolonaD 0 0 -2 '((#\X #\X #\X #\X #\O #\O) (#\O #\X #\X #\X #\O #\O) (#\X #\X #\X #\X #\O #\O) (#\X #\X #\X #\X #\O #\O) (#\O #\X #\X #\X #\O #\O ) (#\O #\O #\X #\X #\X #\X)))
 
 ;racuna ukupne poene svih kolona
 (defun racunajSveKolone(px po lista)
     (cond
         ((null lista) (list px po))
-        (t (let ((poeni (kolonaBezD px po (car lista))))
-                (racunajSveKolone (car poeni) (cadr poeni) (cdr lista))
+        (t (let ((poeni (kolonaBezD 0 0 (car lista)))
+                 (poeniD (kolonaD 0 0 -2 (car lista))))
+                (racunajSveKolone (+ px (car poeni) (car poeniD)) (+ po (cadr poeni) (cadr poeniD)) (cdr lista))
             )
         )
     )
@@ -97,7 +149,7 @@
 (racunajSveKolone 0 0 '(((#\O #\X #\O #\X)(#\O #\O #\O #\O)(#\O #\O #\O #\O)(#\O #\O #\O #\O))
                         ((#\O #\O #\O #\O)(#\X #\X #\X #\X)(#\O #\O #\O #\O)(#\O #\O #\O #\O))
                         ((#\O #\O #\O #\O)(#\X #\X #\X #\X)(#\O #\O #\O #\O)(#\O #\O #\O #\O))
-                        ((#\O #\X #\X #\O)(#\X #\X #\X #\X)(#\O #\X #\X #\O)(#\X #\X #\X #\X))))
+                        ((#\O #\X #\X #\X)(#\X #\X #\X #\X)(#\O #\X #\X #\O)(#\X #\X #\X #\X))))
 
 ;vraca poene jedne kolone (poeni stubova + poeni kolone bez dijagonale), treba da se doda i racunanje poena na dijagonali unutar kolone
 ;; (defun racunajKolonu(lista) 
@@ -127,7 +179,7 @@
                         ((#\O #\O #\O #\O)(#\X #\X #\X #\X)(#\O #\O #\O #\O)(#\O #\O #\O #\O))
                         ((#\O #\X #\X #\O)(#\X #\X #\X #\X)(#\O #\X #\X #\O)(#\X #\X #\X #\X))))
 
-;konacna funkcija za racunanje  poena bez dijagonala, koristeci sve funkcije iznad
+;konacna funkcija za racunanje  poena, koristeci sve funkcije iznad (racuna dijagonale u ravni, ali ne dijagonale u prostoru)
 (defun racunajPoeneBezD(lista)
     (let ((poeni (countAllPillars 0 0 lista)))
         (setf poeni (racunajSveKolone (car poeni) (cadr poeni) lista))
