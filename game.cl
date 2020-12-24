@@ -208,8 +208,219 @@
 )
 )
 
+;FUNCKIJE ZA RACUNANJE POENA
+;brojac istih, poenix, poenio, lista
+(defun prebroj(n px po lista)
+    (cond
+        ((= n 4)
+            (if (equal (car lista) #\X) (prebroj (1- n) (1+ px) po lista) (prebroj (1- n) px (1+ po) lista)) 
+        )  
+        ((= 1 (length lista)) (list px po))
+        ((equal (car lista) (cadr lista)) (prebroj (1+ n) px po (cdr lista)))
+        (t (prebroj '1 px po (cdr lista)))
+    )
+)
+
+;vraca listu (poeniX, poeniO)
+(defun countPoints(lista)
+    (prebroj 1 0 0 lista)
+)
+
+;racuna poene u svim stubovima u jednoj koloni
+(defun racunajStubove(px po lista)
+    (cond
+        ((null lista) (list px po))
+        (t 
+            (let ((poeni (countPoints (car lista))))
+                (racunajStubove (+ px (car poeni)) (+ po (cadr poeni)) (cdr lista))
+            ) 
+        )        
+    )
+)
+
+;racuna poene u stubovima na celoj tabli i dodaje ih na pocetne poene px i po
+(defun countAllPillars(px po lista)
+    (cond
+        ((null lista) (list px po))
+        (t (let ((poeni (racunajStubove px po (car lista))))
+                (countAllPillars (car poeni) (cadr poeni) (cdr lista))
+            )
+        )        
+    )
+)
+
+;izdvaja sve prve elemente ugnjezdenih listi i vraca ih kao listu
+(defun listaPrvih(lista)
+    (cond
+        ((null lista) NIL)
+        (t (cons (car (car lista)) (listaPrvih (cdr lista))))        
+    )
+)
+
+;vraca pocetnu listu bez prvih elemenata uignjezdenih listi
+(defun listaBezPrvih(lista)
+    (cond
+        ((null lista) NIL)
+        (t (cons (cdr (car lista)) (listaBezPrvih (cdr lista))))
+    )
+)
+
+;vraca poene jedne kolone bez racunanja dijagonale i zasebnih stubova
+(defun kolonaBezD(px po lista)
+    (cond
+        ((null (car lista)) (list px po))
+        (t 
+            (let ((poeni (countPoints (listaPrvih lista))))
+                (kolonaBezD (+ px (car poeni)) (+ po (cadr poeni)) (listaBezPrvih lista))  
+            )
+        )
+    )   
+)
+
+;vraca dijagonalu kao listu, sa pocetkom u (0,i), u zavisnosti od parametra glavna vraca glavnu ili sporednu
+(defun getDiag(i glavna lista)
+    (cond
+        ((null lista) NIL)
+        ((and glavna (= i (length (car lista)))) NIL)
+        ((and (not glavna) (< i 0)) NIL)
+        ((>= i (length (car lista))) (getDiag (1- i) glavna (cdr lista)))
+        ((< i 0) (getDiag (1+ i) glavna (cdr lista)))
+        (glavna (cons (nth i (car lista)) (getDiag (1+ i) glavna (cdr lista))))
+        (t (cons (nth i (car lista)) (getDiag (1- i) glavna (cdr lista))))        
+    )
+)
+
+;funkcija za transponovanje matrice
+(defun transpose (m)
+  (apply #'mapcar #'list m)
+)
+
+;vraca poene dijagonala jedne kolone, uvek se poziva sa i=-2
+(defun kolonaD(px po i lista)
+    (cond 
+        ((= 4 (length (car lista))) 
+            (cond
+                ((= i -2) 
+                    (let ((poeni (countPoints (getDiag 0 t (transpose lista)))))
+                        (kolonaD (+ px (car poeni)) (+ po (cadr poeni)) 2 lista)
+                    ) 
+                )
+                ((= i 2)
+                    (let ((poeni (countPoints (getDiag 3 NIL (transpose lista)))))
+                        (list (+ px (car poeni)) (+ po (cadr poeni)))  
+                    ) 
+                )                
+            )
+        )
+        ((= 5 (length (car lista)))
+             (cond
+                ((= i 6) (list px po))
+                ((< i -1) (kolonaD px po (1+ i) lista))
+                ((= 2 i) (kolonaD px po (1+ i) lista))
+                ((< i 2)
+                    (let ((poeni (countPoints (getDiag i t (transpose lista)))))
+                        (kolonaD (+ px (car poeni)) (+ po (cadr poeni)) (1+ i) lista)  
+                    ) 
+                )
+                (t (let ((poeni (countPoints (getDiag i NIL (transpose lista)))))
+                        (kolonaD (+ px (car poeni)) (+ po (cadr poeni)) (1+ i) lista)  
+                    ) 
+                )                
+            )
+        )
+        ((= 6 (length (car lista)))
+            (cond
+                ((= i 8) (list px po))
+                ((<= i 2)
+                    (let ((poeni (countPoints (getDiag i t (transpose lista)))))
+                        (kolonaD (+ px (car poeni)) (+ po (cadr poeni)) (1+ i) lista)  
+                    ) 
+                )
+                (t (let ((poeni (countPoints (getDiag i NIL (transpose lista)))))
+                        (kolonaD (+ px (car poeni)) (+ po (cadr poeni)) (1+ i) lista)  
+                    ) 
+                )                
+            )
+        )
+    )
+)
+
+;racuna ukupne poene svih kolona
+(defun racunajSveKolone(px po lista)
+    (cond
+        ((null lista) (list px po))
+        (t (let ((poeni (kolonaBezD 0 0 (car lista)))
+                 (poeniD (kolonaD 0 0 -2 (car lista))))
+                (racunajSveKolone (+ px (car poeni) (car poeniD)) (+ po (cadr poeni) (cadr poeniD)) (cdr lista))
+            )
+        )
+    )
+)
+
+;racunanje svih redova, transponovanjem matrice i koriscenjem funkcije za racunanje kolona
+(defun racunajSveRedove(px po lista)
+    (racunajSveKolone px po (transpose lista))
+)
+
+;konacna funkcija za racunanje  poena, koristeci sve funkcije iznad (racuna dijagonale u ravni, ali ne dijagonale u prostoru)
+(defun racunajPoeneBezD(lista)
+    (let ((poeni (countAllPillars 0 0 lista)))
+        (setf poeni (racunajSveKolone (car poeni) (cadr poeni) lista))
+        (setf poeni (racunajSveRedove (car poeni) (cadr poeni) lista))
+    )
+)
+
+;racuna poene dijagonala u prostoru, start: i=-2
+(defun racunajDijagonale(px po i lista)
+     (cond 
+        ((= 4 (length (car lista))) 
+            (cond
+                ((= i -2) 
+                    (let ((poeni (kolonaD 0 0 -2 (getDiag 0 t lista)))
+                          (poeniBezD (kolonaBezD 0 0 (getDiag 0 t lista))))
+                        (racunajDijagonale (+ px (car poeni) (car poeniBezD)) (+ po (cadr poeni) (cadr poeniBezD)) 2 lista)
+                    ) 
+                )
+                ((= i 2)
+                    (let ((poeni (kolonaD 0 0 -2 (getDiag 3 NIL lista)))
+                          (poeniBezD (kolonaBezD 0 0 (getDiag 3 NIL lista))))
+                        (list (+ px (car poeni) (car poeniBezD)) (+ po (cadr poeni) (cadr poeniBezD)))
+                    ) 
+                )                
+            )
+        )
+        ((= 6 (length (car lista)))
+            (cond
+                ((= i 8) (list px po))
+                ((<= i 2)
+                    (let ((poeni (kolonaD 0 0 -2 (getDiag i t lista)))
+                            (poeniBezD (kolonaBezD 0 0 (getDiag i t lista))))
+                        (racunajDijagonale (+ px (car poeni) (car poeniBezD)) (+ po (cadr poeni) (cadr poeniBezD)) (1+ i) lista)  
+                    ) 
+                )
+                (t (let ((poeni (kolonaD 0 0 -2 (getDiag i NIL lista)))
+                         (poeniBezD (kolonaBezD 0 0 (getDiag i NIL lista))))
+                        (racunajDijagonale (+ px (car poeni) (car poeniBezD)) (+ po (cadr poeni) (cadr poeniBezD)) (1+ i) lista)
+                    ) 
+                )                
+            )
+        )
+    )
+)
+
+;konacna funkcija za racunanje poena, vraca poene u obliku (X O)
+(defun countFinalPoints(lista)
+    (let ((poeni (racunajPoeneBezD lista))
+          (poeniD (racunajDijagonale 0 0 -2 lista)))
+        (list (+ (car poeni) (car poeniD)) (+ (cadr poeni) (cadr poeniD)))
+    )
+)
+
 (defun checkForWinner(tabla)
   (format t "~%Checking for winner...")
+  (let ((poeni (countFinalPoints tabla)))
+        (format t "~%X: ~a~%Y: ~a~%" (car poeni) (cadr poeni))
+    )
   (exit)
 )
 
