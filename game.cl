@@ -208,6 +208,23 @@
 )
 )
 
+;FUNKCIJE ZA SVA MOGUCA STANJA
+(defun odigrajstanja (pomtabla x y el)
+  (if (member #\- (nth x (nth y pomtabla)))
+      (odigrajpotez x y pomtabla el)
+    ))
+
+(defun mogucastanja (pom) 
+  (let ((i n)) (cond ((< pom 0) '())
+        (t(cons (mogucastanja_kol i pom) (mogucastanja (1- pom))))                   
+        )))
+
+(defun mogucastanja_kol (i pom) 
+  (cond ((< i 0) '())
+        ((null (odigrajstanja tabla i pom nowPlaying)) (mogucastanja_kol (1- i) pom ))
+        (t(cons (odigrajstanja tabla i pom nowPlaying) (mogucastanja_kol (1- i) pom )))
+        ))
+
 ;FUNCKIJE ZA RACUNANJE POENA
 ;brojac istih, poenix, poenio, lista
 (defun prebroj(n px po lista)
