@@ -230,7 +230,7 @@
 (defun prebroj(n px po lista)
     (cond
         ((= n 4)
-            (if (equal (car lista) #\X) (prebroj (1- n) (1+ px) po lista) (prebroj (1- n) px (1+ po) lista)) 
+            (if (equal (car lista) #\X) (prebroj (1- n) (1+ px) po lista) (if (equal (car lista) #\O) (prebroj (1- n) px (1+ po) lista) (list px po))) 
         )  
         ((= 1 (length lista)) (list px po))
         ((equal (car lista) (cadr lista)) (prebroj (1+ n) px po (cdr lista)))
