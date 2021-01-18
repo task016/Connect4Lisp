@@ -197,7 +197,7 @@
             )
             (t 
                 (format t "~%BOT na potezu~%")
-                (setf tabla (cadr (minimax tabla 2 0 0 t)))
+                (setf tabla (cadr (minimax tabla 3 -1000 1000 t)))
                 (setf movesToGo (1- movesToGo))
                 (if (equal nowPlaying #\X) (setf nowPlaying #\O) (setf nowPlaying #\X))
                 (drawTable tabla dim)
@@ -449,7 +449,7 @@
 
 (defun proceniStanje(stanje) 
     (let ((poeni (countFinalPoints stanje)))
-            (- (* 10 (car poeni)) (* 10 (cadr poeni)))  
+            (- (* 10 (cadr poeni)) (* 10 (car poeni)))  
     )
 )
 
@@ -560,14 +560,14 @@
      (return-from minimax (list (proceniStanje stanje) stanje)))
     (if maxpl
         (let ((value '-1000) (st '()))
-          (dolist (temp (mogstanja (1- dim) #\X stanje))
+          (dolist (temp (mogstanja (1- dim) #\O stanje))
             (setf value (max value (car (minimax temp (1- dubina) a b '()))))
             (setf a (max a value))
             (if (>= a b)
               (return) (setf st temp))) (list value st))
       
       (let ((value 1000) (st '()))
-        (dolist (temp (mogstanja (1- dim) #\O stanje))
+        (dolist (temp (mogstanja (1- dim) #\X stanje))
           (setf value (min value (car (minimax temp (1- dubina) a b t))))
           (setf b (min b value))
           (if (<= b a)
