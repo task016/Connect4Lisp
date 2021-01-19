@@ -197,7 +197,7 @@
             )
             (t 
                 (format t "~%BOT na potezu~%")
-                (setf tabla (cadr (minimax tabla 2 -1000 1000 t)))
+                (setf tabla (cadr (minimax tabla 3 -1000 1000 t)))
                 (setf movesToGo (1- movesToGo))
                 (if (equal nowPlaying #\X) (setf nowPlaying #\O) (setf nowPlaying #\X))
                 (drawTable tabla dim)
