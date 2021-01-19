@@ -463,7 +463,7 @@
      (return-from minimax (list (proceniStanje stanje) stanje)))
     (if maxpl
         (let ((value '-1000) (st '()))
-          (dolist (temp (mogstanja (1- dim) #\O stanje))
+          (dolist (temp (mogstanja (1- dim) (if isFirstPlayer #\O #\X) stanje))
             (setf tmpVal (minimax temp (1- dubina) a b '()))
             (if (> (car tmpVal) value) (setf st temp))
             (setf value (max value (car tmpVal)))
@@ -472,7 +472,7 @@
               (return))) (list value st))
       
       (let ((value 1000) (st '()))
-        (dolist (temp (mogstanja (1- dim) #\X stanje))
+        (dolist (temp (mogstanja (1- dim) (if isFirstPlayer #\X #\O) stanje))
           (setf tmpVal2 (minimax temp (1- dubina) a b t))
           (if (< (car tmpVal2) value) (setf st temp))
           (setf value (min value (car tmpVal2)))
