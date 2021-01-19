@@ -197,7 +197,7 @@
             )
             (t 
                 (format t "~%BOT na potezu~%")
-                (setf tabla (cadr (minimax tabla 3 -1000 1000 t)))
+                (setf tabla (cadr (minimax tabla 2 -1000 1000 t)))
                 (setf movesToGo (1- movesToGo))
                 (if (equal nowPlaying #\X) (setf nowPlaying #\O) (setf nowPlaying #\X))
                 (drawTable tabla dim)
@@ -449,110 +449,13 @@
 
 (defun proceniStanje(stanje) 
     (let ((poeni (countFinalPoints stanje)))
-            (- (* 10 (cadr poeni)) (* 10 (car poeni)))  
+        (if isFirstPlayer 
+            (- (* 10 (cadr poeni)) (* 10 (car poeni)))
+            (- (* 10 (car poeni)) (* 10 (cadr poeni)))
+        )
+              
     )
 )
-
-;POMOCNE FJE ZA PROCENU STANJA I MINMAX
-(defun jednako (x y z a b c stanje) (equal (nth z (nth y (nth x stanje))) (nth c (nth b (nth a stanje)))))
-
-(defun ista3 (x y z a b c d1 d2 d3 stanje)
-  (and (equal 
-        (nth z (nth y (nth x stanje)))
-        (nth c (nth b (nth a stanje))))
-       (equal
-        (nth z (nth y (nth x stanje)))
-        (nth d3 (nth d2 (nth d1 stanje))))))
-
-(defun ista5 (k l pom1 pom2 pom3 pom4 pom5 stanje) (and (jednako k pom l k pom1 l stanje)
-                                                        (jednako k pom l k pom2 l stanje)
-                                                        (jednako k pom l k pom3 l stanje)
-                                                        (jednako k pom l k pom4 l stanje)
-                                                        (jednako k pom l k pom5 l stanje)
-                                                        ))
-(defun ista5ver (k l pom1 pom2 pom3 pom4 pom5 stanje) (and (jednako pom k l pom1 k l stanje)
-                                                        (jednako pom k l pom2 k l stanje)
-                                                        (jednako pom k l pom3 k l stanje)
-                                                        (jednako pom k l pom4 k l stanje)
-                                                        (jednako pom k l pom5 k l stanje)
-                                                        ))
-(defun puno (x y  stanje) (not (member #\- (nth x (nth y stanje)))
-                               ))
-(defun ima (potez x y z stanje) (equal (nth z (nth y (nth x stanje))) potez))
-
-
-;PROCENA STANJA
-(defun proceni-stanje (stanje dim1 dim2)(+ (proceni-hor stanje dim1 dim2) (proceni-ver stanje dim1 dim2)))
-
-;HORIZONTALNA PROCENA STANJA
-
-(defun proceni-hor (stanje dim1 dim2) (cond ((< dim1 0) 0)
-                                      (t(+ (proceni-hor2 stanje dim1 dim2) (proceni-hor stanje (1- dim1) dim2)))
-                                      
-                                      
- )
-)
-(defun proceni-hor2 (stanje dim1 dim2) (cond ((< dim2 0) 0)
-                                      (t(+ (proceni-hor3 stanje dim1 dim2) (proceni-hor2 stanje dim1 (1- dim2))))
-))
-
-
-(defun proceni-hor3 (stanje dim1 dim2) (cond ((= n 4) (+ (if (and (ista3 dim1 0 dim2 dim1 1 dim2 dim1 2 dim2 stanje) (ima #\X dim1 0 dim2 stanje)) 1 0)
-                                                       (if (and (ista3 dim1 0 dim2 dim1 1 dim2 dim1 3 dim2 stanje) (ima #\X dim1 0 dim2 stanje)) 1 0)
-                                                       (if (and (ista3 dim1 1 dim2 dim1 2 dim2 dim1 3 dim2 stanje) (ima #\X dim1 1 dim2 stanje)) 1 0)
-                                                       (if (and (ista3 dim1 0 dim2 dim1 1 dim2 dim1 2 dim2 stanje) (ima #\O dim1 0 dim2 stanje)) '-1 0)
-                                                       (if (and (ista3 dim1 0 dim2 dim1 1 dim2 dim1 3 dim2 stanje) (ima #\O dim1 0 dim2 stanje)) '-1 0)
-                                                        (if (and (ista3 dim1 1 dim2 dim1 2 dim2 dim1 3 dim2 stanje) (ima #\O dim1 1 dim2 stanje)) '-1 0)))
-                                             ((= n 6) (+ (if (and (ista5 dim1 dim2 0 1 2 3 4 stanje) (ima #\X dim1 0 dim2 stanje)) 1 0)
-                                                        (if (and (ista5 dim1 dim2 0 1 2 3 5 stanje) (ima #\X dim1 0 dim2 stanje)) 1 0)
-                                                        (if (and (ista5 dim1 dim2 0 1 2 4 5 stanje) (ima #\X dim1 0 dim2 stanje)) 1 0)
-                                                        (if (and (ista5 dim1 dim2 0 1 3 4 5 stanje) (ima #\X dim1 0 dim2 stanje)) 1 0)
-                                                        (if (and (ista5 dim1 dim2 0 2 3 4 5 stanje) (ima #\X dim1 0 dim2 stanje)) 1 0)
-                                                        (if (and (ista5 dim1 dim2 1 2 3 4 5 stanje) (ima #\X dim1 1 dim2 stanje)) 1 0)
-                                                        (if (and (ista5 dim1 dim2 0 1 2 3 4 stanje) (ima #\O dim1 0 dim2 stanje)) '-1 0)
-                                                        (if (and (ista5 dim1 dim2 0 1 2 3 5 stanje) (ima #\O dim1 0 dim2 stanje)) '-1 0)
-                                                        (if (and (ista5 dim1 dim2 0 1 2 4 5 stanje) (ima #\O dim1 0 dim2 stanje)) '-1 0)
-                                                        (if (and (ista5 dim1 dim2 0 1 3 4 5 stanje) (ima #\O dim1 0 dim2 stanje)) '-1 0)
-                                                        (if (and (ista5 dim1 dim2 0 2 3 4 5 stanje) (ima #\O dim1 0 dim2 stanje)) '-1 0)
-                                                        (if (and (ista5 dim1 dim2 1 2 3 4 5 stanje) (ima #\O dim1 1 dim2 stanje)) '-1 0)
-                                                        
-                                                        ))
-                                             ))
-
-
-;VERTIKALNA PROCENA STANJA
-(defun proceni-ver (stanje dim1 dim2) (cond ((< dim1 0) 0)
-                                      (t(+ (proceni-hor2 stanje dim1 dim2) (proceni-hor stanje (1- dim1) dim2)))
-                                      
-                                      
- )
-)
-(defun proceni-ver2 (stanje dim1 dim2) (cond ((< dim2 0) 0)
-                                      (t(+ (proceni-hor3 stanje dim1 dim2) (proceni-hor2 stanje dim1 (1- dim2))))
-))
-
-
-(defun proceni-ver3 (stanje dim1 dim2) (cond ((= n 4) (+ (if (and (ista3 0 dim1 dim2 1 dim1 dim2 2 dim1 dim2 stanje) (ima #\X 0 dim1 dim2 stanje)) 1 0)
-                                                       (if (and (ista3 0 dim1 dim2 1 dim1 dim2 3 dim1 dim2 stanje) (ima #\X 0 dim1 dim2 stanje)) 1 0)
-                                                       (if (and (ista3 1 dim1 dim2 2 dim1 dim2 3 dim1 dim2 stanje) (ima #\X 1 dim1 dim2 stanje)) 1 0)
-                                                       (if (and (ista3 0 dim1 dim2 1 dim1 dim2 2 dim1 dim2 stanje) (ima #\O 0 dim1 dim2 stanje)) '-1 0)
-                                                       (if (and (ista3 0 dim1 dim2 1 dim1 dim2 3 dim1 dim2 stanje) (ima #\O 0 dim1 dim2 stanje)) '-1 0)
-                                                       (if (and (ista3 1 dim1 dim2 2 dim1 dim2 3 dim1 dim2 stanje) (ima #\O 1 dim1 dim2 stanje)) '-1 0)
-                                             ((= n 6) (+ (if (and (ista5ver dim1 dim2 0 1 2 3 4 stanje) (ima #\X dim1 0 dim2 stanje)) 1 0)
-                                                        (if (and (ista5ver dim1 dim2 0 1 2 3 5 stanje) (ima #\X dim1 0 dim2 stanje)) 1 0)
-                                                        (if (and (ista5ver dim1 dim2 0 1 2 4 5 stanje) (ima #\X dim1 0 dim2 stanje)) 1 0)
-                                                        (if (and (ista5ver dim1 dim2 0 1 3 4 5 stanje) (ima #\X dim1 0 dim2 stanje)) 1 0)
-                                                        (if (and (ista5ver dim1 dim2 0 2 3 4 5 stanje) (ima #\X dim1 0 dim2 stanje)) 1 0)
-                                                        (if (and (ista5ver dim1 dim2 1 2 3 4 5 stanje) (ima #\X dim1 1 dim2 stanje)) 1 0)
-                                                        (if (and (ista5ver dim1 dim2 0 1 2 3 4 stanje) (ima #\O dim1 0 dim2 stanje)) '-1 0)
-                                                        (if (and (ista5ver dim1 dim2 0 1 2 3 5 stanje) (ima #\O dim1 0 dim2 stanje)) '-1 0)
-                                                        (if (and (ista5ver dim1 dim2 0 1 2 4 5 stanje) (ima #\O dim1 0 dim2 stanje)) '-1 0)
-                                                        (if (and (ista5ver dim1 dim2 0 1 3 4 5 stanje) (ima #\O dim1 0 dim2 stanje)) '-1 0)
-                                                        (if (and (ista5ver dim1 dim2 0 2 3 4 5 stanje) (ima #\O dim1 0 dim2 stanje)) '-1 0)
-                                                        (if (and (ista5ver dim1 dim2 1 2 3 4 5 stanje) (ima #\O dim1 1 dim2 stanje)) '-1 0)
-                                                        
-                                                        ))
-                                             ))))
 
 ;MINMAX SA ALPHABETA ODSECANJEM
 (defun minimax (stanje dubina a b maxpl)
@@ -561,17 +464,21 @@
     (if maxpl
         (let ((value '-1000) (st '()))
           (dolist (temp (mogstanja (1- dim) #\O stanje))
-            (setf value (max value (car (minimax temp (1- dubina) a b '()))))
-            (setf a (max a value))
+            (setf tmpVal (minimax temp (1- dubina) a b '()))
+            (if (> (car tmpVal) value) (setf st temp))
+            (setf value (max value (car tmpVal)))
+            (setf a (max a (car tmpVal)))
             (if (>= a b)
-              (return) (setf st temp))) (list value st))
+              (return))) (list value st))
       
       (let ((value 1000) (st '()))
         (dolist (temp (mogstanja (1- dim) #\X stanje))
-          (setf value (min value (car (minimax temp (1- dubina) a b t))))
-          (setf b (min b value))
+          (setf tmpVal2 (minimax temp (1- dubina) a b t))
+          (if (< (car tmpVal2) value) (setf st temp))
+          (setf value (min value (car tmpVal2)))
+          (setf b (min b (car tmpVal2)))
           (if (<= b a)
-            (return) (setf st temp))) (list value st))
+            (return))) (list value st))
                             ))
 
 
