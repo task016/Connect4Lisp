@@ -440,7 +440,7 @@
 (defun checkForWinner(tabla)
   (format t "~%Checking for winner...")
   (let ((poeni (countFinalPoints tabla)))
-        (format t "~%X: ~a~%Y: ~a~%" (car poeni) (cadr poeni))
+        (format t "~%X: ~a~%O: ~a~%" (car poeni) (cadr poeni))
     )
   (exit)
 )
