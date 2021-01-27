@@ -480,6 +480,109 @@
           (if (<= b a)
             (return))) (list value st))
                             ))
+;MASINA ZAKLJUCIVANJA
+
+(defun =dec (x) (1- x))
+(defun =inc (x) (1+ x))
+(defun !eq (sign el) (equalp sign el))
+
+
+(defun =proveri-stub (lista i j z) 
+                               (cond ((null lista) '()) 
+                               ((equalp (car lista) #\X)(append (list 'On #\X i j z) (=proveri-stub (cdr lista) i j (1+ z)))) 
+                               ((equalp (car lista) #\O)(append (list '(On #\O i j z)) (=proveri-stub (cdr lista) i j (1+ z))))
+                               ((equalp (car lista) #\-)(=proveri-stub (cdr lista) i j (1+ z)))      
+                               (t(=proveri-stub (cdr lista) i j (1+ z))) 
+                                     ))
+(defun =proveri-kolona (matrix i j z) 
+                                     (cond ((null matrix) '())
+                                     ((null (=proveri-stub (car matrix) i j z)) (=proveri-kolona (cdr matrix) i (1+ j) z))
+                                     (t (cons  (=proveri-stub (car matrix) i j z) (=proveri-kolona (cdr matrix) i (1+ j) z)))
+                                          ))
+(defun =proveri-red (stanje i j z) 
+                                     (cond ((null stanje) '())
+                                     ((null (=proveri-kolona (car stanje) i j z)) (=proveri-red (cdr stanje) (1+ i) j z))
+                                     (t (append  (=proveri-kolona (car stanje) i j z) (=proveri-red (cdr stanje) (1+ i) j z)))
+                                           ))
+
+
+
+
+
+
+
+;RULES
+
+(setq *T1-RULES* '(
+        (IF (AND (!eq #\X ?el) (On ?el ?x ?y ?z) (On ?el (=dec ?x) ?y ?z) (On ?el (=dec (=dec ?x)) ?y ?z) (On ?el (=dec (=dec (=dec ?x))) ?y ?z))
+                   THEN (Cetri-u-nizux ?el ?x ?y ?z 'Dole)) 
+        (IF (AND (!eq #\X ?el) (On ?el ?x ?y ?z) (On ?el ?x (=dec ?y) ?z) (On ?el ?x (=dec (=dec ?y)) ?z) (On ?el ?x (=dec (=dec (=dec ?y))) ?z))
+                   THEN (Cetri-u-nizux ?el ?x ?y ?z 'Dole))
+        (IF (AND (!eq #\X ?el) (On ?el ?x ?y ?z) (On ?el ?x ?y (=dec ?z)) (On ?el ?x ?y (=dec (=dec ?z))) (On ?el ?x ?y (=dec (=dec (=dec ?z)))))
+                   THEN (Cetri-u-nizux ?el ?x ?y ?z 'Dole))
+        (IF (AND (!eq #\X ?el) (On ?el ?x ?y ?z) (On ?el (=inc ?x) ?y ?z) (On ?el (=inc (=inc ?x)) ?y ?z) (On ?el (=inc (=inc (=inc ?x))) ?y ?z))
+                   THEN (Cetri-u-nizux ?el ?x ?y ?z 'Gore)) 
+        (IF (AND (!eq #\X ?el) (On ?el ?x ?y ?z) (On ?el ?x (=inc ?y) ?z) (On ?el ?x (=inc (=inc ?y)) ?z) (On ?el ?x (=inc (=inc (=inc ?y))) ?z))
+                   THEN (Cetri-u-nizux ?el ?x ?y ?z 'Gore))
+        (IF (AND (!eq #\X ?el) (On ?el ?x ?y ?z) (On ?el ?x ?y (=inc ?z)) (On ?el ?x ?y (=inc (=inc ?z))) (On ?el ?x ?y (=inc (=inc (=inc ?z)))))
+                   THEN (Cetri-u-nizux ?el ?x ?y ?z 'Gore))           
+        (IF (AND (!eq #\O ?el) (On ?el ?x ?y ?z) (On ?el (=dec ?x) ?y ?z) (On ?el (=dec (=dec ?x)) ?y ?z) (On ?el (=dec (=dec (=dec ?x))) ?y ?z))
+                   THEN (Cetri-u-nizuo ?el ?x ?y ?z 'Dole)) 
+        (IF (AND (!eq #\O ?el) (On ?el ?x ?y ?z) (On ?el ?x (=dec ?y) ?z) (On ?el ?x (=dec (=dec ?y)) ?z) (On ?el ?x (=dec (=dec (=dec ?y))) ?z))
+                   THEN (Cetri-u-nizuo ?el ?x ?y ?z 'Dole))
+        (IF (AND (!eq #\O ?el) (On ?el ?x ?y ?z) (On ?el ?x ?y (=dec ?z)) (On ?el ?x ?y (=dec (=dec ?z))) (On ?el ?x ?y (=dec (=dec (=dec ?z)))))
+                   THEN (Cetri-u-nizuo ?el ?x ?y ?z 'Dole))
+        (IF (AND (!eq #\O ?el) (On ?el ?x ?y ?z) (On ?el (=inc ?x) ?y ?z) (On ?el (=inc (=inc ?x)) ?y ?z) (On ?el (=inc (=inc (=inc ?x))) ?y ?z))
+                   THEN (Cetri-u-nizuo ?el ?x ?y ?z 'Gore)) 
+        (IF (AND (!eq #\O ?el) (On ?el ?x ?y ?z) (On ?el ?x (=inc ?y) ?z) (On ?el ?x (=inc (=inc ?y)) ?z) (On ?el ?x (=inc (=inc (=inc ?y))) ?z))
+                   THEN (Cetri-u-nizuo ?el ?x ?y ?z 'Gore))
+        (IF (AND (!eq #\O ?el) (On ?el ?x ?y ?z) (On ?el ?x ?y (=inc ?z)) (On ?el ?x ?y (=inc (=inc ?z))) (On ?el ?x ?y (=inc (=inc (=inc ?z)))))
+                   THEN (Cetri-u-nizuo ?el ?x ?y ?z 'Gore))                                            
+        (IF (AND (!eq #\X ?el) (On ?el ?x ?y ?z) (On ?el (=dec ?x) ?y ?z) (On ?el (=dec (=dec ?x)) ?y ?z)) THEN (Tri-u-nizux ?el ?x ?y ?z 'Dole))
+	(IF (AND (!eq #\X ?el) (On ?el ?x ?y ?z) (On ?el ?x (=dec ?y) ?z) (On ?el ?x (=dec (=dec ?y)) ?z)) THEN (Tri-u-nizux ?el ?x ?y ?z 'Dole)) 
+	(IF (AND (!eq #\X ?el) (On ?el ?x ?y ?z) (On ?el ?x ?y (=dec ?z)) (On ?el ?x ?y (=dec (=dec ?z)))) THEN (Tri-u-nizux ?el ?x ?y ?z 'Dole))	
+	(IF (AND (!eq #\X ?el) (On ?el ?x ?y ?z) (On ?el (=inc ?x) ?y ?z) (On ?el (=inc (=inc ?x)) ?y ?z)) THEN (Tri-u-nizux ?el ?x ?y ?z 'Gore))
+	(IF (AND (!eq #\X ?el) (On ?el ?x ?y ?z) (On ?el ?x (=inc ?y) ?z) (On ?el ?x (=inc (=inc ?y)) ?z)) THEN (Tri-u-nizux ?el ?x ?y ?z 'Gore)) 
+        (IF (AND (!eq #\X ?el) (On ?el ?x ?y ?z) (On ?el ?x ?y (=inc ?z)) (On ?el ?x ?y (=inc (=inc ?z)))) THEN (Tri-u-nizux ?el ?x ?y ?z 'Gore))
+        (IF (AND (!eq #\O ?el) (On ?el ?x ?y ?z) (On ?el (=dec ?x) ?y ?z) (On ?el (=dec (=dec ?x)) ?y ?z)) THEN (Tri-u-nizuo ?el ?x ?y ?z 'Dole))
+	(IF (AND (!eq #\O ?el) (On ?el ?x ?y ?z) (On ?el ?x (=dec ?y) ?z) (On ?el ?x (=dec (=dec ?y)) ?z)) THEN (Tri-u-nizuo ?el ?x ?y ?z 'Dole)) 
+	(IF (AND (!eq #\O ?el) (On ?el ?x ?y ?z) (On ?el ?x ?y (=dec ?z)) (On ?el ?x ?y (=dec (=dec ?z)))) THEN (Tri-u-nizuo ?el ?x ?y ?z 'Dole))	
+	(IF (AND (!eq #\O ?el) (On ?el ?x ?y ?z) (On ?el (=inc ?x) ?y ?z) (On ?el (=inc (=inc ?x)) ?y ?z)) THEN (Tri-u-nizuo ?el ?x ?y ?z 'Gore))
+	(IF (AND (!eq #\O ?el) (On ?el ?x ?y ?z) (On ?el ?x (=inc ?y) ?z) (On ?el ?x (=inc (=inc ?y)) ?z)) THEN (Tri-u-nizuo ?el ?x ?y ?z 'Gore)) 
+	(IF (AND (!eq #\O ?el) (On ?el ?x ?y ?z) (On ?el ?x ?y (=inc ?z)) (On ?el ?x ?y (=inc (=inc ?z)))) THEN (Tri-u-nizuo ?el ?x ?y ?z 'Gore))           
+                   ))
+;FACTS
+(defun genFacts(tabla)
+    (=proveri-red tabla 0 0 0)
+  )
+
+;MASINA STANJA GLAVNA FUNKCIJA
+
+(defun heuristicsConclusionMachine (tabla)
+    (let* 
+        (
+            (*T1-FACTS* (genFacts tabla))  
+        )  
+        (progn
+            (prepare-knowledge *T1-RULES* *T1-FACTS* 10)
+            
+            (let*
+                (
+                    (acc1x (* (count-results '(Cetri-u-nizuo ?el ?x ?y ?z 'Gore)) 10))
+                    (acc1o (* (count-results '(Cetri-u-nizuo ?el ?x ?y ?z 'Gore)) -10))                   
+                    (acc2x (* (count-results '(Tri-u-nizux ?el ?x ?y ?z 'Dole)) 5))                   
+                    (acc2o (* (count-results '(Tri-u-nizuo ?el ?x ?y ?z 'Dole)) -5))
+                    (acc3x (* (count-results '(Tri-u-nizux ?el ?x ?y ?z 'Gore)) 5 ))                   
+                    (acc3o (* (count-results '(Tri-u-nizuo ?el ?x ?y ?z 'Gore)) -5 ))
+                    (acc4x (* (count-results '(Cetri-u-nizux ?el ?x ?y ?z 'Dole)) 10))
+                    (acc4o (* (count-results '(Cetri-u-nizuo ?el ?x ?y ?z 'Dole)) -10))
+                    (acc (+ acc2x acc2o acc1x acc1o acc3x acc3o acc4x acc4o ))  
+                )         
+             acc
+            )
+        )
+    )
+  )
 
 
 ;INICIJALIZACIJA IGRE
