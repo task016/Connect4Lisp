@@ -1,3 +1,4 @@
+(require "Inference_engine.cl")
 (setf tabla nil)
 (setf dim nil)
 (setf isFirstPlayer nil)
@@ -449,12 +450,12 @@
 
 (defun proceniStanje(stanje) 
     (let ((poeni (countFinalPoints stanje)))
-        (if isFirstPlayer 
-            (- (* 10 (cadr poeni)) (* 10 (car poeni)))
-            (- (* 10 (car poeni)) (* 10 (cadr poeni)))
-        )
-              
+       (if isFirstPlayer 
+           (- (* 10 (cadr poeni)) (* 10 (car poeni)))
+           (- (* 10 (car poeni)) (* 10 (cadr poeni)))
+       )         
     )
+    
 )
 
 ;MINMAX SA ALPHABETA ODSECANJEM
@@ -568,7 +569,7 @@
             
             (let*
                 (
-                    (acc1x (* (count-results '(Cetri-u-nizuo ?el ?x ?y ?z 'Gore)) 10))
+                    (acc1x (* (count-results '(Cetri-u-nizux ?el ?x ?y ?z 'Gore)) 10))
                     (acc1o (* (count-results '(Cetri-u-nizuo ?el ?x ?y ?z 'Gore)) -10))                   
                     (acc2x (* (count-results '(Tri-u-nizux ?el ?x ?y ?z 'Dole)) 5))                   
                     (acc2o (* (count-results '(Tri-u-nizuo ?el ?x ?y ?z 'Dole)) -5))
